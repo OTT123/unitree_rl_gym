@@ -34,8 +34,7 @@ class Go2MyRoughCfg( LeggedRobotCfg ):
     
     class env(LeggedRobotCfg.env):
         episode_length_s = 2.0
-        num_observations = 60
-        num_privileged_obs = 64
+        num_observations = 63
         num_actions = 12
         
         
@@ -64,11 +63,11 @@ class Go2MyRoughCfg( LeggedRobotCfg ):
             # feet_distance= -1.0
             # action_rate = -0.001
             ang_vel_y= 5.0
-            lin_vel_z= 20.0
             ang_vel_z= -1.0
+            lin_vel_z= 20.0
             orientation_control = -1.0
             feet_height_before_backflip= -30.0
-            height_control= 20.0
+            height_control= -10.0
             actions_symmetry= -0.1
             gravity_y= -10.0
             feet_distance= -1.0

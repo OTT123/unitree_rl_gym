@@ -4,18 +4,8 @@ from isaacgym.torch_utils import *
 from isaacgym import gymtorch, gymapi, gymutil
 import torch
 
-
-class Go2MyRobot(LeggedRobot):
+class Go2MYRobot(LeggedRobot):
     def _get_noise_scale_vec(self, cfg):
-        """ Sets a vector used to scale the noise added to the observations.
-            [NOTE]: Must be adapted when changing the observations structure
-
-        Args:
-            cfg (Dict): Environment config file
-
-        Returns:
-            [torch.Tensor]: Vector of scales used to multiply a uniform distribution in [-1, 1]
-        """
         noise_vec = torch.zeros_like(self.obs_buf[0])
         self.add_noise = self.cfg.noise.add_noise
         noise_scales = self.cfg.noise.noise_scales
@@ -33,11 +23,11 @@ class Go2MyRobot(LeggedRobot):
             (
                 self.base_lin_vel * self.obs_scales.lin_vel,                     # 3
                 self.base_ang_vel * self.obs_scales.ang_vel,                     # 3
-                self.projected_gravity,                                             # 3
+                self.projected_gravity,                                          # 3
                 (self.dof_pos - self.default_dof_pos) * self.obs_scales.dof_pos, # 12
                 self.dof_vel * self.obs_scales.dof_vel,                          # 12
-                self.actions,                                                       # 12
-                self.last_actions,                                                  # 12
+                self.actions,                                                    # 12
+                self.last_actions,                                               # 12
                 torch.sin(phase),
                 torch.cos(phase),
                 torch.sin(phase / 2),
@@ -52,8 +42,10 @@ class Go2MyRobot(LeggedRobot):
             self.obs_buf += (2 * torch.rand_like(self.obs_buf) - 1) * self.noise_scale_vec
     
     def check_termination(self):
-        self.reset_buf = (self.episode_length_buf > self.max_episode_length)
-    
+        self.reset_buf = (
+            self.episode_length_buf > self.max_episode_length
+        )
+
     def _init_foot(self):
         self.feet_num = len(self.feet_indices)
         
@@ -67,28 +59,33 @@ class Go2MyRobot(LeggedRobot):
     def _init_buffers(self):
         super()._init_buffers()
         self._init_foot()
-        
+    
+    def check_termination(self):
+        self.reset_buf = (
+            self.episode_length_buf > self.max_episode_length
+        )
+
     def update_feet_state(self):
         self.gym.refresh_rigid_body_state_tensor(self.sim)
         self.feet_state = self.rigid_body_states_view[:, self.feet_indices, :]
         self.feet_pos = self.feet_state[:, :, :3]
         self.feet_vel = self.feet_state[:, :, 7:10]
-    
+        
     def _post_physics_step_callback(self):
-        self.update_feet_state()     
+        self.update_feet_state()
         return super()._post_physics_step_callback()
     
     def _reward_orientation_control(self):
         # Penalize non flat base orientation
         current_time = self.episode_length_buf * self.dt
         phase = (current_time - 0.5).clamp(min=0, max=0.5)
-        # quat_pitch [w, xyz]
         quat_pitch = quat_from_angle_axis(4 * phase * torch.pi,
-                                             torch.tensor([0, 1, 0], device=self.device, dtype=torch.float))    
-        self.base_init_quat = torch.tensor([0.0, 0.0, 0.0, 1.0],device=self.device,dtype=torch.float, requires_grad=False)
+                                             torch.tensor([0, 1, 0], device=self.device, dtype=torch.float))
+        self.base_init_quat = torch.tensor([0, 0, 0, 1], device=self.device)
         desired_base_quat = quat_mul(quat_pitch, self.base_init_quat.reshape(1, -1).repeat(self.num_envs, 1))
+        inv_desired_base_quat = inv_quat(desired_base_quat)
+        desired_projected_gravity = transform_by_quat(self.global_gravity, inv_desired_base_quat)
 
-        desired_projected_gravity = quat_rotate_inverse(desired_base_quat, self.gravity_vec)
         orientation_diff = torch.sum(torch.square(self.projected_gravity - desired_projected_gravity), dim=1)
 
         return orientation_diff
@@ -103,7 +100,7 @@ class Go2MyRobot(LeggedRobot):
 
     def _reward_lin_vel_z(self):
         current_time = self.episode_length_buf * self.dt
-        lin_vel = self.base_lin_vel[:, 2].clamp(max=3)
+        lin_vel = self.robot.get_vel()[:, 2].clamp(max=3)
         return lin_vel * torch.logical_and(current_time > 0.5, current_time < 0.75)
 
     def _reward_height_control(self):
@@ -134,6 +131,7 @@ class Go2MyRobot(LeggedRobot):
         stance_width = 0.3 * torch.ones([self.num_envs, 1,], device=self.device)
         desired_ys = torch.cat([stance_width / 2, -stance_width / 2, stance_width / 2, -stance_width / 2], dim=1)
         stance_diff = torch.square(desired_ys - footsteps_in_body_frame[:, :, 1]).sum(dim=1)
+        
         return stance_diff
 
     def _reward_feet_height_before_backflip(self):
