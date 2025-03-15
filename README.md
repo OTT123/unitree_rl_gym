@@ -1,4 +1,5 @@
 ## demo_01 分支。 go2_my env
+### python legged_gym/scripts/play.py --task=go2_my --load_run=../../legged_gym/envs/go2_my/exported_benchmark --checkpoint=1000
 <div align="center">
   <h1 align="center">Unitree RL GYM</h1>
   <p align="center">
