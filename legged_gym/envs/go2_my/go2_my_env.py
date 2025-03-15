@@ -82,7 +82,7 @@ class Go2MyRobot(LeggedRobot):
         # Penalize non flat base orientation
         current_time = self.episode_length_buf * self.dt
         phase = (current_time - 0.5).clamp(min=0, max=0.5)
-        # quat_pitch [w, xyz]
+        # quat_pitch [xyz, w]
         quat_pitch = quat_from_angle_axis(4 * phase * torch.pi,
                                              torch.tensor([0, 1, 0], device=self.device, dtype=torch.float))    
         self.base_init_quat = torch.tensor([0.0, 0.0, 0.0, 1.0],device=self.device,dtype=torch.float, requires_grad=False)
@@ -131,7 +131,7 @@ class Go2MyRobot(LeggedRobot):
             footsteps_in_body_frame[:, i, :] = quat_apply(quat_conjugate(self.base_quat),
                                                                  cur_footsteps_translated[:, i, :])
 
-        stance_width = 0.3 * torch.ones([self.num_envs, 1,], device=self.device)
+        stance_width = 0.28 * torch.ones([self.num_envs, 1,], device=self.device)
         desired_ys = torch.cat([stance_width / 2, -stance_width / 2, stance_width / 2, -stance_width / 2], dim=1)
         stance_diff = torch.square(desired_ys - footsteps_in_body_frame[:, :, 1]).sum(dim=1)
         return stance_diff

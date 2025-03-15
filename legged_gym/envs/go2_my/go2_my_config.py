@@ -52,26 +52,17 @@ class Go2MyRoughCfg( LeggedRobotCfg ):
         only_positive_rewards = False
         class scales():
             # for backflip
-            # ang_vel_y= 5.0
-            # lin_vel_z= 20.0
-            # ang_vel_z= -1.0
-            # orientation_control = -1.0
-            # feet_height_before_backflip= -30.0
-            # height_control= 10.0
-            # actions_symmetry= -0.1
-            # gravity_y= -10.0
-            # feet_distance= -1.0
-            # action_rate = -0.001
             ang_vel_y= 5.0
             ang_vel_z= -1.0
             lin_vel_z= 20.0
             orientation_control = -1.0
             feet_height_before_backflip= -30.0
             height_control= -10.0
-            actions_symmetry= -0.1
+            actions_symmetry= -0.5
             gravity_y= -10.0
             feet_distance= -1.0
             action_rate = -0.001
+            torques = -0.00001
             
     class noise(LeggedRobotCfg.noise):
         add_noise = True

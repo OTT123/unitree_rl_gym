@@ -12,7 +12,10 @@ from .h1_my.h1_my_env import H1MyRobot
 from .h1_my.h1_my_config import H1MyRoughCfg, H1MyRoughCfgPPO
 from .go2_my.go2_my_env import Go2MyRobot
 from .go2_my.go2_my_config import Go2MyRoughCfg, Go2MyRoughCfgPPO
-
+from .go2_my.go2_my_env import Go2MyRobot
+from .go2_my.go2_my_config import Go2MyRoughCfg, Go2MyRoughCfgPPO
+from .go2_backflip.go2_backflip_env import Go2backflipRobot
+from .go2_backflip.go2_backflip_config import Go2backflipRoughCfg, Go2backflipRoughCfgPPO
 from legged_gym.utils.task_registry import task_registry
 
 task_registry.register( "go2", LeggedRobot, GO2RoughCfg(), GO2RoughCfgPPO())
@@ -21,3 +24,4 @@ task_registry.register( "h1_2", H1_2Robot, H1_2RoughCfg(), H1_2RoughCfgPPO())
 task_registry.register( "g1", G1Robot, G1RoughCfg(), G1RoughCfgPPO())
 task_registry.register( "h1_my", H1MyRobot, H1MyRoughCfg(), H1MyRoughCfgPPO())
 task_registry.register( "go2_my", Go2MyRobot, Go2MyRoughCfg(), Go2MyRoughCfgPPO())
+task_registry.register( "go2_backflip", Go2backflipRobot, Go2backflipRoughCfg(), Go2backflipRoughCfgPPO())
