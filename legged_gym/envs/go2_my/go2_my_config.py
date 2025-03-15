@@ -58,7 +58,7 @@ class Go2MyRoughCfg( LeggedRobotCfg ):
             orientation_control = -1.0
             feet_height_before_backflip= -30.0
             height_control= -10.0
-            actions_symmetry= -0.5
+            actions_symmetry= -0.4
             gravity_y= -10.0
             feet_distance= -1.0
             action_rate = -0.001
